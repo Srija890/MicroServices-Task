@@ -1,0 +1,55 @@
+version: "2"
+services:
+
+  api-gateway:
+    image: zuul-service
+    build: api-gateway/
+    network_mode: host
+    depends_on:
+    - eureka-server
+    ports:
+    - 8092:8092
+    expose:
+    - 8092
+
+  eureka-server:
+    image: eureka-service:latest
+    build: eureka-server/
+    network_mode: host
+    ports:
+    - 9090:9090
+    expose:
+    - 9090
+
+  config-server:
+    image: config-server:latest
+    build: config-server/
+    network_mode: host
+    depends_on:
+    - eureka-server
+    ports:
+    - 8888:8888
+    expose:
+    - 8888
+
+  userservice:
+    image: userservice1234:latest
+    build: userservice/
+    network_mode: host
+    depends_on:
+      - eureka-server
+      - config-server
+      - api-gateway
+      - mongo
+    ports:
+      - 8080:8080
+    expose:
+      - 8080
+
+  mongo:
+    image: mongo
+#    restart: always
+    network_mode: host
+    container_name: db
+    ports:
+      - 27017:27017
